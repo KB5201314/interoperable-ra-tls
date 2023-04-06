@@ -51,7 +51,17 @@ Firstly, we need to compile rats-tls wth all sample programs. You will need to c
     cmake -DRATS_TLS_BUILD_MODE="sgx" -DBUILD_SAMPLES=on -H. -Bbuild
     make -C build install
     ```
-    
+
+    You can follow the guide [here](https://github.com/occlum/occlum/blob/master/docs/install_occlum_packages.md#install-occlum-with-apt-on-ubuntu-2004) to install occlum. And remember to install `occlum-toolchains-glibc` after that, which is needed by rats-tls.
+
+    ```sh
+    cd rats-tls
+
+    # Occlum mode
+    cmake -DRATS_TLS_BUILD_MODE="occlum" -DBUILD_SAMPLES=on -H. -Bbuild
+    make -C build install
+    ```
+
 ## Compile on an TD VM
 
 1. Firstly, you can install your software packages in the same way as you did in SGX.
@@ -127,6 +137,29 @@ Firstly, we need to compile rats-tls wth all sample programs. You will need to c
 
     Now, the rats-tls-server is listening on port 1234.
 
+<!-- 
+    ```sh
+    cd /usr/share/rats-tls/samples
+
+    # 1. Init Occlum server Workspace
+    rm -rf occlum_workspace_server
+    mkdir occlum_workspace_server
+    cd occlum_workspace_server
+    occlum init
+
+    # 2. Copy files into Occlum Workspace and Build
+    cp ../rats-tls-server image/bin
+    cp /lib/x86_64-linux-gnu/libdl.so.2 image/opt/occlum/glibc/lib
+    cp /usr/lib/x86_64-linux-gnu/libssl.so.1.1 image/opt/occlum/glibc/lib
+    cp /usr/lib/x86_64-linux-gnu/libcrypto.so.1.1 image/opt/occlum/glibc/lib
+    mkdir -p image/usr/local/lib
+    cp -rf /usr/local/lib/rats-tls image/usr/local/lib
+
+    occlum build
+    occlum run /bin/rats-tls-server --log-level debug --ip 0.0.0.0 --port 1234 --attester sgx_ecdsa --verifier nullverifier --crypto openssl --tls openssl --endorsements
+    ```
+ -->
+
 2. Run `rats-tls-client` in the TD VM with SGX ECDSA verifier.
 
     ```sh
@@ -157,6 +190,29 @@ Firstly, we need to compile rats-tls wth all sample programs. You will need to c
 
     Where `<td-server-ip>` is the IP address of the rats-tls-server.
 
+<!-- 
+    ```sh
+    cd /usr/share/rats-tls/samples
+
+    # 1. Init Occlum client Workspace
+    rm -rf occlum_workspace_client
+    mkdir occlum_workspace_client
+    cd occlum_workspace_client
+    occlum init
+
+    # 2. Copy files into Occlum Workspace and Build
+    cp ../rats-tls-client image/bin
+    cp /lib/x86_64-linux-gnu/libdl.so.2 image/opt/occlum/glibc/lib
+    cp /usr/lib/x86_64-linux-gnu/libssl.so.1.1 image/opt/occlum/glibc/lib
+    cp /usr/lib/x86_64-linux-gnu/libcrypto.so.1.1 image/opt/occlum/glibc/lib
+    mkdir -p image/usr/local/lib
+    cp -rf /usr/local/lib/rats-tls image/usr/local/lib
+
+    occlum build
+    occlum run /bin/rats-tls-client --log-level debug --ip <td-server-ip> --port 1234 --attester nullattester --verifier tdx_ecdsa --crypto openssl --tls openssl
+    ```
+ -->
+
 ## Case 3: TD VM and SGX enclave as both attester and verifier (mutual attestation).
 
 This case builds upon Case 1, adding verification of the rats-tls-client, which is based on OpenSSL client cert.
@@ -170,6 +226,29 @@ This case builds upon Case 1, adding verification of the rats-tls-client, which 
     ```
 
     Now, the rats-tls-server is listening on port 1234.
+
+<!-- 
+    ```sh
+    cd /usr/share/rats-tls/samples
+
+    # 1. Init Occlum server Workspace
+    rm -rf occlum_workspace_server
+    mkdir occlum_workspace_server
+    cd occlum_workspace_server
+    occlum init
+
+    # 2. Copy files into Occlum Workspace and Build
+    cp ../rats-tls-server image/bin
+    cp /lib/x86_64-linux-gnu/libdl.so.2 image/opt/occlum/glibc/lib
+    cp /usr/lib/x86_64-linux-gnu/libssl.so.1.1 image/opt/occlum/glibc/lib
+    cp /usr/lib/x86_64-linux-gnu/libcrypto.so.1.1 image/opt/occlum/glibc/lib
+    mkdir -p image/usr/local/lib
+    cp -rf /usr/local/lib/rats-tls image/usr/local/lib
+
+    occlum build
+    occlum run /bin/rats-tls-server --log-level debug --ip 0.0.0.0 --port 1234 --attester sgx_ecdsa --verifier tdx_ecdsa --crypto openssl --tls openssl --endorsements --mutual
+    ```
+ -->
 
 2. Run `rats-tls-client` in the TD VM and enable both the TDX ECDSA attester and the SGX ECDSA verifier.
 
